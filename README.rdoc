@@ -1,6 +1,6 @@
 To use these generator templates:
 
- rails new app_name -m https://github.com/tinogomes/rails-template/raw/master/base.rb
+ rails new app_name -TB -d postgresql -m https://github.com/tinogomes/rails-template/raw/master/base.rb
 
 That will generate a Rails app using the base.rb template found here.
 
