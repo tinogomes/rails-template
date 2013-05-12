@@ -1,18 +1,33 @@
-#This template was based from http://github.com/ryanb/rails-templates/blob/master/base.rb
+app_name = ask('What is the name of your app?')
+
+gem_group :development, :test do
+  gem "brakeman"
+  gem "guard-rspec"
+  gem "pry-debugger"
+  gem "rspec-rails"
+  gem "rubocop"
+end
+
+file "config/initializers/secret_token", <<-CODE
+if ENV['SECRET_TOKEN'].empty?
+  warn('SECRET_TOKEN is not defined. Try `export SECRET_TOKEN=$(rake secret)`')
+  exit 1
+end
+
+file "README.mkdn", <<-README
+# #{app_name}
+
+TBD
+README
+
+#{app_name}::Application.config.secret_key_base = ENV['SECRET_TOKEN']
+
+CODE
+
+run "cp config/database.yml config/database.yml.sample"
+
+run "echo '.rvmrc' >> .gitignore"
+run "echo 'config/*.yml' >> .gitignore"
 
 git :init
- 
-run "echo 'TODO add readme content' > README"
-run "touch tmp/.gitignore log/.gitignore vendor/.gitignore"
-run "cp config/database.yml config/database.yml.sample"
-run "rm public/images/rails.png"
-run "rm public/index.html"
- 
-file ".gitignore", <<-GITIGNORE
-log/*.log
-tmp/**/*
-config/*.yml
-db/*.sqlite3
-GITIGNORE
- 
-git :add => ".", :commit => "-m 'initial commit'"
+git add: "."
