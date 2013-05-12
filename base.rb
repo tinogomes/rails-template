@@ -29,7 +29,7 @@ run "cp config/database.yml config/database.yml.sample"
 run "echo '.rvmrc' >> .gitignore"
 run "echo 'config/*.yml' >> .gitignore"
 
-run "bundle install" if yes?('Execute `bundle install` ?')
+bundle install if yes?('Execute `bundle install` ?')
 
 git :init
 git add: "."
