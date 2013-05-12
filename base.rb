@@ -8,7 +8,7 @@ gem_group :development, :test do
   gem "rubocop"
 end
 
-file "config/initializers/secret_token", <<-CODE
+file "config/initializers/secret_token.rb", <<-CODE
 if ENV['SECRET_TOKEN'].empty?
   warn('SECRET_TOKEN is not defined. Try `export SECRET_TOKEN=$(rake secret)`')
   exit 1
