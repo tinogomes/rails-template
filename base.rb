@@ -66,4 +66,6 @@ guard :rspec, options: rspec_options do
 end
 GUARDFILE
 
+puts "execute `export SECRET_TOKEN=$(rake secret)`"
+
 puts "It's time to get fun!"
