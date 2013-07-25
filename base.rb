@@ -10,7 +10,14 @@ def want_gem(gemname)
   gem gemname if yes?("Would you like to use #{gemname}?")
 end
 
+def comment_line_on(filename, expression)
+  gsub_file filename, Regexp.new("^.*#{expression}.*$"), '# \0'
+end
+
 run "/bin/bash -lc 'rvm #{ENV['RUBY_VERSION']}@#{app_name} --create --ruby-version'"
+
+comment_line_on 'Gemfile', 'coffee'
+comment_line_on 'Gemfile', 'turbolinks'
 
 want_gem 'unicorn-rails'
 
@@ -83,4 +90,4 @@ git :init
 git add: '.'
 git commit: '-m "It\'s time to get fun!"'
 
-puts "Remember, you should create the SECRET_TOKEN variable for production."
+puts 'Remember, you should create the SECRET_TOKEN variable for production.'
