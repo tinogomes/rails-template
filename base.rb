@@ -83,4 +83,4 @@ git :init
 git add: '.'
 git commit: '-m "It\'s time to get fun!"'
 
-puts ""
+puts "Remember, you should create the SECRET_TOKEN variable for production."
