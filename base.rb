@@ -10,12 +10,18 @@ def want_gem(gemname)
   gem gemname if yes?("Would you like to use #{gemname}?")
 end
 
+def remove_comments_for(filename)
+  gsub_file filename, /^\s*#.*\n/, ''
+end
+
 def comment_line_on(filename, expression)
   gsub_file filename, Regexp.new("^.*#{expression}.*$"), '# \0'
 end
 
 run "/bin/bash -lc 'rvm #{ENV['RUBY_VERSION']}@#{app_name} --create --ruby-version'"
 
+remove_comments_for 'Gemfile'
+remove_comments_for 'config/routes.rb'
 comment_line_on 'Gemfile', 'coffee'
 comment_line_on 'Gemfile', 'turbolinks'
 
