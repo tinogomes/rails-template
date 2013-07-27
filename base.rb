@@ -1,14 +1,11 @@
 # encoding: utf-8
-@available_gems = []
 
-def installed?(gemname)
-  @available_gems.include?(gemname)
+if options['skip_gemfile']
+  puts 'You can not use this template without gemfile, sorry...'
+  exit 1
 end
 
-def want_gem(gemname)
-  @available_gems << gemname
-  gem gemname if yes?("Would you like to use #{gemname}?")
-end
+run "/bin/bash -lc 'rvm #{ENV['RUBY_VERSION']}@#{app_name} --create --ruby-version'"
 
 def remove_comments_for(filename)
   gsub_file filename, /^\s*#.*\n/, ''
@@ -18,26 +15,25 @@ def comment_line_on(filename, expression)
   gsub_file filename, Regexp.new("^.*#{expression}.*$"), '# \0'
 end
 
-run "/bin/bash -lc 'rvm #{ENV['RUBY_VERSION']}@#{app_name} --create --ruby-version'"
-
 remove_comments_for 'Gemfile'
-remove_comments_for 'config/routes.rb'
 comment_line_on 'Gemfile', 'coffee'
 comment_line_on 'Gemfile', 'turbolinks'
 
-want_gem 'unicorn-rails'
+gem 'unicorn-rails'
 
 gem_group :development do
-  want_gem 'brakeman'
-  want_gem 'rubocop'
+  gem 'brakeman'
+  gem 'rubocop'
 end
 
 gem_group :development, :test do
   gem 'dotenv-rails'
-  want_gem 'guard-rspec'
+  gem 'guard-rspec'
   gem 'pry-debugger'
   gem 'rspec-rails'
 end
+
+remove_comments_for 'config/routes.rb'
 
 create_file 'README.mkdn', <<-README
 # #{app_name}
@@ -58,9 +54,6 @@ CODE
 
 create_file '.env', "SECRET_TOKEN=#{app_secret}"
 
-run 'cp config/database.yml config/database.yml.sample'
-append_file '.gitignore', '/.ruby-*'
-append_file '.gitignore', '/config/*.yml'
 remove_file "README.rdoc"
 
 run 'bundle'
@@ -68,18 +61,16 @@ run 'bundle'
 generate 'rspec:install'
 get 'https://gist.github.com/tinogomes/6082570/raw/e7cb366b0376a594d3928a8bb744e4a154e671e8/.rspec', '.rspec'
 
-if installed?('guard-rspec')
-  run "guard init rspec"
+run "guard init rspec"
 
-  gsub_file 'Guardfile', 'guard :rspec do', <<-EOF
-  rspec_options = {
-    all_after_pass: false,
-    all_on_start: false
-  }
+gsub_file 'Guardfile', 'guard :rspec do', <<-EOF
+rspec_options = {
+  all_after_pass: false,
+  all_on_start: false
+}
 
-  guard :rspec, options: rspec_options do
-  EOF
-end
+guard :rspec, options: rspec_options do
+EOF
 
 if yes?('Do you want Home controller?')
   generate :controller, :home, :index
@@ -87,13 +78,27 @@ if yes?('Do you want Home controller?')
   route "root to: 'home#index'"
 end
 
-rake 'db:create:all'
-rake 'db:migrate'
-rake 'db:test:prepare'
+if !options['skip_active_record']
+  run 'cp config/database.yml config/database.yml.sample'
+
+  rake 'db:create:all'
+  rake 'db:migrate'
+  rake 'db:test:prepare'
+else
+  remove_file 'config/database.yml'
+end
+
 rake 'spec'
 
-git :init
-git add: '.'
-git commit: '-m "It\'s time to get fun!"'
+if !options['skip_git']
+  append_file '.gitignore', '/.ruby-*'
+  append_file '.gitignore', '/config/*.yml'
+
+  git :init
+  git add: '.'
+  git commit: '-m "It\'s time to get fun!"'
+else
+  puts 'You are not using Git. O_o'
+end
 
 puts 'Remember, you should create the SECRET_TOKEN variable for production.'
