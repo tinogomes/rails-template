@@ -23,8 +23,17 @@ git :init
 append_file '.gitignore', '/.ruby-*'
 append_file '.gitignore', '/config/*.yml'
 
+Dir['./config/*.yml'].each do |filename|
+  FileUtils.cp filename, "#{filename}.sample"
+end
+
 git add: '.'
 git commit: '-m "Rails app base"'
+
+if yes?('Force a Ruby version?')
+  ruby_version = ask('Which Ruby version:')
+  gsub_file 'Gemfile', /^(source.*)$/, "\\1\n\nruby " + ruby_version.inspect
+end
 
 uncomment_lines 'Gemfile', 'bcrypt' if yes?('Use BCrypt?')
 uncomment_lines 'Gemfile', 'unicorn' if yes?('Use Unicorn?')
@@ -44,6 +53,14 @@ gem_group :development, :test do
   gem 'guard-rspec'
   gem 'byebug'
   gem 'rspec-rails'
+end
+
+gem_group :production do
+  # enable gzip compression on heroku, but don't compress images.
+  gem 'heroku-deflater' if yes?('Use heroku-deflater?')
+  # heroku injects it if it's not in there already
+  gem 'rails_12factor'
+  gem 'newrelic_rpm' if yes?('Use Newrelic?')
 end
 
 run 'bundle install'
@@ -99,7 +116,7 @@ end
 unless options['skip_active_record']
   rake 'db:create'
   rake 'db:migrate'
-end
+end if yes?('Create database?')
 
 rake 'spec'
 
