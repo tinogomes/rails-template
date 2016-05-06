@@ -20,8 +20,8 @@ end
 
 git :init
 
-append_file '.gitignore', '/.ruby-*'
-append_file '.gitignore', '/config/*.yml'
+append_file '.gitignore', "/.ruby-*\n"
+append_file '.gitignore', "/config/*.yml\n"
 
 Dir['./config/*.yml'].each do |filename|
   FileUtils.cp filename, "#{filename}.sample"
@@ -116,9 +116,9 @@ end
 unless options['skip_active_record']
   rake 'db:create'
   rake 'db:migrate'
+  rake 'spec' if yes?('Is rspec working?')
 end if yes?('Create database?')
 
-rake 'spec'
 
 if yes?('Remove comments for routes file?')
   remove_comments_for 'config/routes.rb'
@@ -128,7 +128,7 @@ end
 
 puts 'TODO:'
 puts '- Edit README file'
-puts '- Verify bin/setup file'
-puts '- Verify Procfile.development file'
-puts '- Verify .env file'
+puts '- Override bin/setup file from https://gist.github.com/tinogomes/5aee18de24ba1115a1f2afdb959187c4'
+puts '- Check Procfile.development file'
+puts '- Check .env file'
 puts '- Go work!'
